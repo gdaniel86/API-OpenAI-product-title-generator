@@ -1,2 +1,2 @@
 # API OpenAI product title generator
- 
+ This script generates SEO-friendly product titles using OpenAI's GPT model. It reads product information (such as product code, brand, category, and specifications) from an Excel file and creates a custom prompt for each product based on a template stored in a text file. The prompt is sent to OpenAI's API, which generates a relevant product title. The generated titles are then added to the Excel file in a new column and saved for further use. The script also includes error handling to ensure that the API key is correctly set before making requests.

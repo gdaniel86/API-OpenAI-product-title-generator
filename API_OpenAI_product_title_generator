@@ -1,0 +1,80 @@
+from dotenv import load_dotenv
+import os
+import openai
+import pandas as pd
+
+# Load the environment variables from the specified .env file
+load_dotenv(r'C:\Users\gruia\Documents\GitHub\Product-title-generation-with-OpenAI-API\API_OpenAI.env')
+
+# Retrieve the API key from the environment variables
+api_key = os.getenv('API_KEY')
+
+# Use environment variables
+print(f'API Key: {api_key}')
+
+if api_key:
+    print("API Key is set correctly.")
+else:
+    print("API Key is missing.")
+
+# Set the OpenAI API key
+openai.api_key = api_key
+
+# Function to generate a product title using OpenAI's GPT model
+def generare_titlu(cod, marca, categorie, titlu_produs, specificatii, openai):
+    # Read the prompt template from a text file
+    with open(r'C:\Users\Your_path_file!!!\prompt_template.txt', 'r', encoding='utf-8') as file:
+        prompt_template = file.read()
+
+    # Replace placeholders in the prompt template with actual values
+    prompt = prompt_template.format(
+        titlu_produs=titlu_produs,
+        specificatii=specificatii,
+        marca=marca
+    )
+
+    # Use OpenAI's ChatCompletion API to generate the title
+    response = openai.ChatCompletion.create(
+        model="gpt-4o",  # Specify the model to use (e.g., GPT-4o)
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.5,  # Control randomness of the output
+        max_tokens=700,   # Limit the number of tokens in the output
+        top_p=0.9,        # Use nucleus sampling for diversity in output
+        frequency_penalty=0,  # No penalty for frequent tokens
+        presence_penalty=0,   # No penalty for new topics in the conversation
+    )
+
+    # If a response is received, return the generated title
+    if response['choices']:
+        return response['choices'][0]['message']['content']
+    else:
+        # Print an error message if no response is received and return None
+        print("Error: No response received from OpenAI.")
+        return None
+
+# Load the Excel file containing product details into a DataFrame
+df = pd.read_excel(r'C:\Users\Your_path_file!!!\titluri_produse.xlsx')
+
+# Add a new column in the DataFrame to store AI-generated titles
+df['Titlu generat cu Ai'] = ''
+
+# Iterate through each row in the DataFrame
+for index, row in df.iterrows():
+    # Extract relevant data from the current row
+    cod = row['Cod']
+    marca = row['Producator']
+    categorie = row['Categorie']
+    titlu_produs = row['Titlu Produs']
+    specificatii = row['Specificatii']
+
+    # Generate a SEO-friendly title using OpenAI GPT-3 (or GPT-4)
+    descriere_seo = generare_titlu(cod, marca, categorie, titlu_produs, specificatii, openai)
+
+    # Add the generated title to the DataFrame in the corresponding row
+    df.at[index, 'Titlu generat cu Ai'] = descriere_seo
+
+# Save the updated DataFrame to a new Excel file, only including specific columns
+df.to_excel(r'C:\Users\Your_path_file!!!\output_Titlu generat cu Ai.xlsx', columns=['Cod', 'Titlu Produs', 'Specificatii', 'Titlu generat cu Ai'], index=False)

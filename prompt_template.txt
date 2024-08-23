@@ -1,0 +1,1 @@
+Genereaza titlu produs pentru {titlu_produs} {specificatii} {marca} de forma: tip produs, brand, model si specificatile esentiale. Fara diacritice si taxa timbru verde.
